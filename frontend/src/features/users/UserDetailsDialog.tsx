@@ -1,8 +1,8 @@
 import { Icon } from "../../shared/components/Icon/Icon";
 import { Modal } from "../../shared/components/Modal/Modal";
 import { StatusBadge } from "../../shared/components/StatusBadge/StatusBadge";
-import { NEVER_ACCESSED_LABEL, ROLE_NAMES } from "../../shared/demo/labels";
-import type { User } from "../../shared/demo/types";
+import { lastAccessLabel, ROLE_NAMES } from "../../shared/data/labels";
+import type { User } from "../../shared/data/types";
 
 interface UserDetailsDialogProps {
     user: User;
@@ -16,7 +16,7 @@ export function UserDetailsDialog({ user, companyName, onClose, onEdit, onDelete
     return (
         <Modal
             title={user.name}
-            description="Usuário fictício desta demonstração."
+            description="Dados cadastrais do usuário."
             onClose={onClose}
             footer={
                 <>
@@ -52,7 +52,7 @@ export function UserDetailsDialog({ user, companyName, onClose, onEdit, onDelete
                 </div>
                 <div className="details__item">
                     <dt>Último acesso</dt>
-                    <dd>{user.lastAccess ?? NEVER_ACCESSED_LABEL}</dd>
+                    <dd>{lastAccessLabel(user.lastAccess)}</dd>
                 </div>
             </dl>
         </Modal>

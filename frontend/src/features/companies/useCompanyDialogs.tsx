@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import { ConfirmDialog } from "../../shared/components/ConfirmDialog/ConfirmDialog";
 import { useToast } from "../../shared/components/Toast/useToast";
-import type { CompanyInput } from "../../shared/demo/types";
-import { useDemoData } from "../../shared/demo/useDemoData";
+import type { CompanyInput } from "../../shared/data/types";
+import { useAppData } from "../../shared/data/useAppData";
+import { toApiError } from "../../shared/services/apiError";
 import { activeHtmlElement, restoreFocus } from "../../shared/utils/focus";
 import { pluralize } from "../../shared/utils/format";
 import { CompanyDetailsDialog } from "./CompanyDetailsDialog";
@@ -20,7 +21,7 @@ type DialogState =
  * entre /empresas e a Visão geral para que ambos mostrem os mesmos detalhes.
  */
 export function useCompanyDialogs() {
-    const { companies, users, createCompany, updateCompany, deleteCompany } = useDemoData();
+    const { companies, users, createCompany, updateCompany, deleteCompany } = useAppData();
     const { showToast } = useToast();
     const [dialog, setDialog] = useState<DialogState>(null);
     const triggerRef = useRef<HTMLElement | null>(null);
@@ -42,22 +43,27 @@ export function useCompanyDialogs() {
     const company = dialog && "companyId" in dialog ? companies.find((item) => item.id === dialog.companyId) : undefined;
     const linkedUsers = company ? users.filter((user) => user.companyId === company.id).length : 0;
 
-    const handleCreate = (input: CompanyInput) => {
-        const created = createCompany(input);
-        showToast(`Empresa “${created.name}” cadastrada nesta demonstração. Os dados valem só nesta sessão.`);
+    // Falhas de cadastro e edição sobem para o formulário, que continua aberto.
+    const handleCreate = async (input: CompanyInput) => {
+        const created = await createCompany(input);
+        showToast(`Empresa “${created.name}” cadastrada com sucesso.`);
         close();
     };
 
-    const handleUpdate = (companyId: string, input: CompanyInput) => {
-        updateCompany(companyId, input);
-        showToast(`Dados de “${input.name}” atualizados nesta demonstração.`);
+    const handleUpdate = async (companyId: string, input: CompanyInput) => {
+        const updated = await updateCompany(companyId, input);
+        showToast(`Dados de “${updated.name}” atualizados.`);
         close();
     };
 
-    const handleDelete = (companyId: string, name: string) => {
-        deleteCompany(companyId);
-        showToast(`Empresa “${name}” removida desta demonstração, com seus usuários vinculados.`);
-        close();
+    const handleDelete = async (companyId: string, name: string) => {
+        try {
+            await deleteCompany(companyId);
+            showToast(`Empresa “${name}” excluída, com seus usuários vinculados.`);
+            close();
+        } catch (error) {
+            showToast(toApiError(error).message, "error");
+        }
     };
 
     let dialogs = null;
@@ -92,9 +98,9 @@ export function useCompanyDialogs() {
                     onConfirm={() => handleDelete(company.id, company.name)}
                 >
                     {linkedUsers > 0
-                        ? `${pluralize(linkedUsers, "usuário de demonstração vinculado", "usuários de demonstração vinculados")} a esta empresa também ${linkedUsers === 1 ? "será removido" : "serão removidos"}.`
-                        : "Esta empresa não tem usuários de demonstração vinculados."}{" "}
-                    A exclusão afeta apenas esta sessão e é desfeita ao recarregar a página.
+                        ? `${pluralize(linkedUsers, "usuário vinculado", "usuários vinculados")} a esta empresa também ${linkedUsers === 1 ? "será removido" : "serão removidos"}.`
+                        : "Esta empresa não tem usuários vinculados."}{" "}
+                    Esta ação não pode ser desfeita.
                 </ConfirmDialog>
             );
         }

@@ -1,4 +1,4 @@
-import type { CompanyInput } from "../../shared/demo/types";
+import type { CompanyInput } from "../../shared/data/types";
 import { isValidEmail, type FieldErrors } from "../../shared/utils/validation";
 
 export function validateCompany(values: CompanyInput): FieldErrors<CompanyInput> {

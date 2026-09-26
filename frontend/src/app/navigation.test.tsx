@@ -4,8 +4,8 @@ import { goTo, mainNav, renderApp } from "../test/renderApp";
 import { NAV_ITEMS } from "./navigation";
 
 describe("navigation shell", () => {
-    it.each(NAV_ITEMS)("NAV-T01: direct load of $path activates $label", ({ path, label }) => {
-        renderApp(path);
+    it.each(NAV_ITEMS)("NAV-T01: direct load of $path activates $label", async ({ path, label }) => {
+        await renderApp(path);
         const current = within(mainNav())
             .getAllByRole("link")
             .filter((link) => link.getAttribute("aria-current") === "page");
@@ -20,7 +20,7 @@ describe("navigation shell", () => {
     });
 
     it("NAV-002 / NAV-004: menu navigation updates active state and focuses the heading", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         await goTo(user, "Usuários");
         const heading = screen.getByRole("heading", { level: 1, name: "Usuários" });
         expect(heading).toHaveFocus();
@@ -29,7 +29,7 @@ describe("navigation shell", () => {
     });
 
     it("NAV-T03: mobile menu toggle stays in sync with aria-expanded", async () => {
-        const { user } = renderApp("/");
+        const { user } = await renderApp("/");
         const button = screen.getByRole("button", { name: "Abrir menu" });
         expect(button).toHaveAttribute("aria-expanded", "false");
 
@@ -45,8 +45,8 @@ describe("navigation shell", () => {
         expect(button).toHaveAttribute("aria-expanded", "false");
     });
 
-    it("NAV-005: shell shows the demonstration context", () => {
-        renderApp("/");
+    it("NAV-005: shell shows the demonstration context", async () => {
+        await renderApp("/");
         expect(screen.getByText("Acme Gestão")).toBeInTheDocument();
         expect(screen.getByText("João Sampaio")).toBeInTheDocument();
         expect(screen.getByText(/Todos os dados são fictícios/)).toBeInTheDocument();

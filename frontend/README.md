@@ -2,14 +2,15 @@
 
 Painel administrativo em React + TypeScript + Vite com quatro telas: **Visão geral** (`/`), **Empresas** (`/empresas`), **Usuários** (`/usuarios`) e **Permissões** (`/permissoes`).
 
-> **Ambiente de demonstração:** todos os dados são fictícios e ficam apenas na memória do navegador. As alterações sobrevivem à navegação entre telas, mas **recarregar a página restaura os dados iniciais**. Nenhuma requisição é feita ao backend.
+Os dados (empresas, usuários e matriz de permissões) são carregados e salvos pela **API do backend** (Flask + PostgreSQL), então as alterações continuam após recarregar a página. Os registros iniciais são fictícios e vêm do seed do backend. Ainda não há login: os perfis e permissões são apenas exibidos, sem controlar o acesso.
 
-As especificações de cada tela estão em [`claude/`](./claude).
+As especificações de cada tela estão em [`claude/`](./claude); a integração com o backend está em [`claude/integracao-api/spec.md`](./claude/integracao-api/spec.md).
 
 ## Pré-requisitos
 
 - **Node.js 20.19+** ou **22.12+** (exigência do Vite 8). Verifique com `node -v`.
 - **npm** (instalado junto com o Node).
+- **Backend em execução** para usar as telas (veja [`../backend/README.md`](../backend/README.md)). Os testes do frontend **não** precisam do backend.
 
 ## Instalação
 
@@ -26,7 +27,9 @@ Crie o arquivo de variáveis de ambiente a partir do exemplo, se ele ainda não 
 cp .env.example .env
 ```
 
-A variável `VITE_API_URL` define a URL do backend (ex.: `http://localhost:5000`). As telas atuais não a usam, mas o cliente HTTP em `src/shared/services/httpClient.ts` já está configurado com ela.
+A variável `VITE_API_URL` define a URL do backend (padrão: `http://localhost:5000`). Ela é lida pelo cliente HTTP em `src/shared/services/httpClient.ts`; reinicie o `npm run dev` depois de alterá-la.
+
+Se o backend não estiver acessível, as telas mostram “Não foi possível carregar os dados” com o botão **Tentar novamente**.
 
 ## Executando o frontend
 
@@ -54,7 +57,7 @@ npm run preview   # serve o conteúdo de dist/ localmente
 
 ## Executando os testes
 
-Os testes usam [Vitest](https://vitest.dev) com [Testing Library](https://testing-library.com) em ambiente jsdom (simulação de navegador), sem precisar abrir um navegador.
+Os testes usam [Vitest](https://vitest.dev) com [Testing Library](https://testing-library.com) em ambiente jsdom (simulação de navegador), sem precisar abrir um navegador. No lugar do backend, eles usam uma API em memória (`src/test/fakeApi.ts`) com os mesmos dados de exemplo e as mesmas regras (ids novos, exclusão em cascata etc.).
 
 ### Rodar todos os testes uma vez
 
@@ -75,7 +78,7 @@ npx vitest run src/features/companies          # só os testes de uma pasta
 npx vitest run -t "COM-T05"                    # só os testes cujo nome contém o texto
 ```
 
-Os nomes dos testes começam pelo identificador do requisito da especificação (`NAV-*`, `OV-*`, `COM-*`, `USR-*`, `PER-*`), o que facilita relacionar cada teste ao item correspondente em `claude/*/spec.md`.
+Os nomes dos testes começam pelo identificador do requisito da especificação (`NAV-*`, `OV-*`, `COM-*`, `USR-*`, `PER-*`, `API-*`), o que facilita relacionar cada teste ao item correspondente em `claude/*/spec.md`.
 
 ### Onde ficam os testes
 
@@ -86,9 +89,11 @@ Os nomes dos testes começam pelo identificador do requisito da especificação 
 | `src/features/companies/CompaniesPage.test.tsx` | Listagem, filtros, paginação, formulário e exclusão de empresas |
 | `src/features/users/UsersPage.test.tsx` | Listagem, formulário e exclusão de usuários |
 | `src/features/permissions/PermissionsPage.test.tsx` | Matriz de permissões |
-| `src/shared/demo/demoDataReducer.test.ts` | Regras de atualização do estado compartilhado |
+| `src/app/apiIntegration.test.tsx` | Carregamento, nova tentativa e falhas da API refletidas na interface |
+| `src/shared/services/dataApi.test.ts` | URLs, conversão de dados e mensagens de erro da camada HTTP |
+| `src/shared/data/dataReducer.test.ts` | Regras de atualização do estado compartilhado |
 
-A configuração fica em `vite.config.ts` (bloco `test`) e em `src/test/setup.ts`. Utilitários de renderização para os testes estão em `src/test/renderApp.tsx`.
+A configuração fica em `vite.config.ts` (bloco `test`) e em `src/test/setup.ts`. Utilitários de renderização estão em `src/test/renderApp.tsx` (`await renderApp(rota, api?)` espera o carregamento inicial), os dados de exemplo em `src/test/fixtures.ts` e a API em memória em `src/test/fakeApi.ts`; passe `createFakeApi({ createCompany: ... })` para simular respostas de erro.
 
 ## Outros comandos
 
@@ -104,10 +109,11 @@ src/
 ├── features/       # telas: overview, companies, users, permissions
 ├── shared/
 │   ├── components/ # componentes reutilizáveis (Modal, Pagination, Sidebar...)
-│   ├── demo/       # tipos, dados fictícios e estado compartilhado
+│   ├── data/       # tipos, rótulos e estado compartilhado carregado da API
 │   ├── hooks/      # usePagination
 │   ├── layouts/    # layout com menu lateral e barra superior
+│   ├── services/   # cliente HTTP (axios), chamadas à API e tratamento de erros
 │   └── utils/      # formatação, validação e foco
 ├── styles/         # CSS global
-└── test/           # configuração e utilitários de teste
+└── test/           # configuração, dados de exemplo, API em memória e utilitários de teste
 ```

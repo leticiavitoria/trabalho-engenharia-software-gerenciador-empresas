@@ -1,8 +1,10 @@
 import { useRef, useState, type FormEvent } from "react";
 import { SelectField, TextField } from "../../shared/components/Form/Field";
+import { Icon } from "../../shared/components/Icon/Icon";
 import { Modal } from "../../shared/components/Modal/Modal";
-import { COMPANY_STATUS_LABELS, RECORD_STATUSES } from "../../shared/demo/labels";
-import type { Company, CompanyInput, RecordStatus } from "../../shared/demo/types";
+import { COMPANY_STATUS_LABELS, RECORD_STATUSES } from "../../shared/data/labels";
+import type { Company, CompanyInput, RecordStatus } from "../../shared/data/types";
+import { toApiError } from "../../shared/services/apiError";
 import { focusFirstInvalidField } from "../../shared/utils/focus";
 import { hasErrors, type FieldErrors } from "../../shared/utils/validation";
 import { validateCompany } from "./companyValidation";
@@ -10,7 +12,8 @@ import { validateCompany } from "./companyValidation";
 interface CompanyFormDialogProps {
     company?: Company;
     onCancel: () => void;
-    onSubmit: (input: CompanyInput) => void;
+    /** Rejeitar a promessa mantém o formulário aberto e exibe o erro. */
+    onSubmit: (input: CompanyInput) => Promise<void>;
 }
 
 const STATUS_OPTIONS = RECORD_STATUSES.map((status) => ({ value: status, label: COMPANY_STATUS_LABELS[status] }));
@@ -31,6 +34,8 @@ function toFormValues(company?: Company): CompanyInput {
 export function CompanyFormDialog({ company, onCancel, onSubmit }: CompanyFormDialogProps) {
     const [values, setValues] = useState<CompanyInput>(() => toFormValues(company));
     const [errors, setErrors] = useState<FieldErrors<CompanyInput>>({});
+    const [formError, setFormError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const isEditing = Boolean(company);
 
@@ -39,8 +44,9 @@ export function CompanyFormDialog({ company, onCancel, onSubmit }: CompanyFormDi
         if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (submitting) return;
         const nextErrors = validateCompany(values);
         if (hasErrors(nextErrors)) {
             setErrors(nextErrors);
@@ -48,15 +54,31 @@ export function CompanyFormDialog({ company, onCancel, onSubmit }: CompanyFormDi
             return;
         }
         const trimmedPhone = values.phone?.trim();
-        onSubmit({
-            name: values.name.trim(),
-            cnpj: values.cnpj.trim(),
-            sector: values.sector.trim(),
-            city: values.city.trim(),
-            status: values.status,
-            email: values.email.trim(),
-            phone: trimmedPhone || undefined,
-        });
+        setFormError(null);
+        setSubmitting(true);
+        try {
+            await onSubmit({
+                name: values.name.trim(),
+                cnpj: values.cnpj.trim(),
+                sector: values.sector.trim(),
+                city: values.city.trim(),
+                status: values.status,
+                email: values.email.trim(),
+                phone: trimmedPhone || undefined,
+            });
+        } catch (error) {
+            // Erros por campo do servidor (ex.: CNPJ duplicado) aparecem junto ao campo.
+            const apiError = toApiError(error);
+            const fieldErrors = apiError.fields as FieldErrors<CompanyInput>;
+            if (hasErrors(fieldErrors)) {
+                setErrors(fieldErrors);
+                focusFirstInvalidField(formRef.current);
+            } else {
+                setFormError(apiError.message);
+            }
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const formId = "company-form";
@@ -64,19 +86,25 @@ export function CompanyFormDialog({ company, onCancel, onSubmit }: CompanyFormDi
     return (
         <Modal
             title={isEditing ? "Editar empresa" : "Nova empresa"}
-            description="Os dados são fictícios e ficam salvos apenas nesta sessão do navegador."
+            description="Campos marcados com * são obrigatórios."
             onClose={onCancel}
             footer={
                 <>
                     <button type="button" className="button button--secondary" onClick={onCancel}>
                         Cancelar
                     </button>
-                    <button type="submit" form={formId} className="button button--primary">
-                        {isEditing ? "Salvar alterações" : "Cadastrar empresa"}
+                    <button type="submit" form={formId} className="button button--primary" disabled={submitting}>
+                        {submitting ? "Salvando…" : isEditing ? "Salvar alterações" : "Cadastrar empresa"}
                     </button>
                 </>
             }
         >
+            {formError && (
+                <div className="notice notice--error" role="alert">
+                    <Icon name="info" />
+                    <p>{formError}</p>
+                </div>
+            )}
             <form id={formId} ref={formRef} className="form-grid" noValidate onSubmit={handleSubmit}>
                 <div className="form-grid__full">
                     <TextField

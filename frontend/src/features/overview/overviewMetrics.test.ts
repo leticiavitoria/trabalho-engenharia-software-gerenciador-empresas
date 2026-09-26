@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { INITIAL_COMPANIES, INITIAL_USERS } from "../../shared/demo/fixtures";
+import { INITIAL_COMPANIES, INITIAL_USERS } from "../../test/fixtures";
 import { computeOverviewMetrics, selectRecentCompanies } from "./overviewMetrics";
 
 describe("overview metrics", () => {

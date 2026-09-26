@@ -4,7 +4,7 @@ import { bodyRows, goTo, renderApp } from "../../test/renderApp";
 
 describe("Usuários", () => {
     it("USR-T01: six users paginate as five plus one", async () => {
-        const { user } = renderApp("/usuarios");
+        const { user } = await renderApp("/usuarios");
         expect(bodyRows()).toHaveLength(5);
         expect(screen.getByText("Mostrando 1–5 de 6")).toBeInTheDocument();
         await user.click(screen.getByRole("button", { name: "Próxima página" }));
@@ -12,7 +12,7 @@ describe("Usuários", () => {
     });
 
     it("USR-T02: company search combines with the status filter", async () => {
-        const { user } = renderApp("/usuarios");
+        const { user } = await renderApp("/usuarios");
         await user.type(screen.getByLabelText("Buscar usuários"), "aurora");
         await user.selectOptions(screen.getByLabelText("Situação"), "active");
         const rows = bodyRows();
@@ -25,7 +25,7 @@ describe("Usuários", () => {
     });
 
     it("USR-T03: invalid email or missing name creates nothing", async () => {
-        const { user } = renderApp("/usuarios");
+        const { user } = await renderApp("/usuarios");
         await user.click(screen.getByRole("button", { name: "Novo usuário" }));
         const dialog = screen.getByRole("dialog", { name: "Novo usuário" });
         await user.type(within(dialog).getByLabelText(/^E-mail/), "sem-arroba");
@@ -40,7 +40,7 @@ describe("Usuários", () => {
     });
 
     it("USR-T04 / USR-T05: new user shows 'Nunca acessou' and edits persist across routes", async () => {
-        const { user } = renderApp("/usuarios");
+        const { user } = await renderApp("/usuarios");
         await user.click(screen.getByRole("button", { name: "Novo usuário" }));
         const dialog = screen.getByRole("dialog", { name: "Novo usuário" });
         await user.type(within(dialog).getByLabelText(/Nome completo/), "Paula Nunes");
@@ -49,7 +49,7 @@ describe("Usuários", () => {
         await user.selectOptions(within(dialog).getByLabelText(/Perfil de acesso/), "Editor");
         await user.selectOptions(within(dialog).getByLabelText(/Situação/), "Pendente");
         await user.click(within(dialog).getByRole("button", { name: "Cadastrar usuário" }));
-        expect(screen.getByRole("status")).toHaveTextContent(/Nenhuma conta real foi criada/);
+        expect(screen.getByRole("status")).toHaveTextContent(/Nenhuma senha ou convite foi enviado/);
 
         await user.click(screen.getByRole("button", { name: "Página 2" }));
         await user.click(screen.getByRole("button", { name: "Ver detalhes de Paula Nunes" }));
@@ -78,7 +78,7 @@ describe("Usuários", () => {
     });
 
     it("USR-T06 / OV-T03: deleting a pending user updates overview and company counts", async () => {
-        const { user } = renderApp("/usuarios");
+        const { user } = await renderApp("/usuarios");
         await user.click(screen.getByRole("button", { name: "Ver detalhes de Beatriz Souza" }));
         await user.click(screen.getByRole("button", { name: "Excluir usuário" }));
         const confirm = screen.getByRole("alertdialog", { name: "Excluir “Beatriz Souza”?" });
@@ -96,7 +96,7 @@ describe("Usuários", () => {
     });
 
     it("USR-T07: without companies the form explains the next step", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         for (let i = 0; i < 6; i++) {
             await user.click(screen.getAllByRole("button", { name: /^Ver detalhes de / })[0]);
             await user.click(screen.getByRole("button", { name: "Excluir empresa" }));

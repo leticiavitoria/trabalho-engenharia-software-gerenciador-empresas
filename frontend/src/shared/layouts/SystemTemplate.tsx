@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { findNavItem } from "../../app/navigation";
+import { DataGate } from "../data/DataGate";
 import { Header } from "../components/Header/Header";
 import { Sidebar } from "../components/Sidebar/Sidebar";
 
@@ -67,7 +68,9 @@ export function SystemTemplate() {
                     onToggleMenu={() => (menuOpen ? closeMenu(true) : setMenuOpen(true))}
                 />
                 <main ref={mainRef} className="shell__main" tabIndex={-1}>
-                    <Outlet />
+                    <DataGate>
+                        <Outlet />
+                    </DataGate>
                 </main>
             </div>
         </div>

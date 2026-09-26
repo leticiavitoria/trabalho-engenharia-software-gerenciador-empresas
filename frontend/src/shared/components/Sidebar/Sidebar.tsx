@@ -40,8 +40,8 @@ export function Sidebar({ id, open, onNavigate }: SidebarProps) {
             <div className="sidebar__notice">
                 <Icon name="info" size={16} />
                 <p>
-                    <strong>Ambiente de demonstração.</strong> Todos os dados são fictícios e as alterações valem
-                    apenas nesta sessão do navegador.
+                    <strong>Ambiente de demonstração.</strong> Todos os dados são fictícios; as alterações são
+                    salvas no banco de dados do servidor.
                 </p>
             </div>
 

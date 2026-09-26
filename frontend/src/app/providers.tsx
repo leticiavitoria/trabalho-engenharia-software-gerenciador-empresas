@@ -1,19 +1,19 @@
 import type { ReactNode } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ToastProvider } from "../shared/components/Toast/ToastProvider";
-import { DemoDataProvider } from "../shared/demo/DemoDataProvider";
+import { DataProvider } from "../shared/data/DataProvider";
 
 interface AppProvidersProps {
     children: ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-    // O estado da demonstração fica acima das rotas para sobreviver à navegação.
+    // Os dados ficam acima das rotas: são carregados uma vez e sobrevivem à navegação.
     return (
         <BrowserRouter>
-            <DemoDataProvider>
+            <DataProvider>
                 <ToastProvider>{children}</ToastProvider>
-            </DemoDataProvider>
+            </DataProvider>
         </BrowserRouter>
     );
 }

@@ -1,5 +1,7 @@
 # Navigation Menu Specification
 
+> **Update — backend integration:** data is now loaded from and saved to the API/database. Statements below about session-only state, fixtures restored on reload, or the absence of API requests are superseded by `../integracao-api/spec.md`.
+
 ## 1. Feature Overview
 
 This specification defines the shared administrative shell and navigation menu for a React and Next.js application. The rendered interface is in Brazilian Portuguese; this specification is in English. Requirements with the prefix `NAV-*` are normative and stable references for implementation and verification.

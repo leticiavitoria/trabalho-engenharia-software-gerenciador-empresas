@@ -1,22 +1,32 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { expect } from "vitest";
 import { AppRoutes } from "../app/routes";
 import { ToastProvider } from "../shared/components/Toast/ToastProvider";
-import { DemoDataProvider } from "../shared/demo/DemoDataProvider";
+import { DataProvider } from "../shared/data/DataProvider";
+import { LOADING_MESSAGE } from "../shared/data/DataGate";
+import type { DataApi } from "../shared/services/dataApi";
+import { createFakeApi } from "./fakeApi";
 
-export function renderApp(path = "/") {
+/** Renderiza o app com a API em memória e aguarda o carregamento inicial dos dados. */
+export async function renderApp(path = "/", api: DataApi = createFakeApi()) {
     const user = userEvent.setup();
     const result = render(
         <MemoryRouter initialEntries={[path]}>
-            <DemoDataProvider>
+            <DataProvider api={api}>
                 <ToastProvider>
                     <AppRoutes />
                 </ToastProvider>
-            </DemoDataProvider>
+            </DataProvider>
         </MemoryRouter>,
     );
-    return { user, ...result };
+    await waitForDataLoaded();
+    return { user, api, ...result };
+}
+
+export async function waitForDataLoaded() {
+    await waitFor(() => expect(screen.queryByText(LOADING_MESSAGE)).not.toBeInTheDocument());
 }
 
 /** Linhas do corpo da primeira tabela dentro de `container` (ou da página). */

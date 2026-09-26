@@ -4,9 +4,9 @@ import { ListToolbar } from "../../shared/components/ListToolbar/ListToolbar";
 import { PageHeader } from "../../shared/components/PageHeader/PageHeader";
 import { Pagination } from "../../shared/components/Pagination/Pagination";
 import { StatusBadge } from "../../shared/components/StatusBadge/StatusBadge";
-import { isStatusFilter, matchesStatus, type StatusFilter } from "../../shared/demo/filters";
-import { NEVER_ACCESSED_LABEL, ROLE_NAMES } from "../../shared/demo/labels";
-import { useDemoData } from "../../shared/demo/useDemoData";
+import { isStatusFilter, matchesStatus, type StatusFilter } from "../../shared/data/filters";
+import { lastAccessLabel, ROLE_NAMES } from "../../shared/data/labels";
+import { useAppData } from "../../shared/data/useAppData";
 import { usePagination } from "../../shared/hooks/usePagination";
 import { matchesSearch, pluralize } from "../../shared/utils/format";
 import { useUserDialogs } from "./useUserDialogs";
@@ -19,7 +19,7 @@ const STATUS_FILTER_OPTIONS = [
 ];
 
 export function UsersPage() {
-    const { companies, users } = useDemoData();
+    const { companies, users } = useAppData();
     const { openDetails, openCreate, dialogs } = useUserDialogs();
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -48,7 +48,7 @@ export function UsersPage() {
         <>
             <PageHeader
                 title="Usuários"
-                description={`${pluralize(users.length, "usuário cadastrado", "usuários cadastrados")} nesta demonstração. Perfis são apenas exibidos e não controlam acesso real.`}
+                description={`${pluralize(users.length, "usuário cadastrado", "usuários cadastrados")}. Os perfis são apenas exibidos e ainda não controlam o acesso.`}
                 actions={
                     <button type="button" className="button button--primary" onClick={openCreate}>
                         <Icon name="plus" size={16} />
@@ -102,7 +102,7 @@ export function UsersPage() {
                                     <td>
                                         <StatusBadge kind="user" status={user.status} />
                                     </td>
-                                    <td className="muted">{user.lastAccess ?? NEVER_ACCESSED_LABEL}</td>
+                                    <td className="muted">{lastAccessLabel(user.lastAccess)}</td>
                                     <td className="table__actions">
                                         <button
                                             type="button"

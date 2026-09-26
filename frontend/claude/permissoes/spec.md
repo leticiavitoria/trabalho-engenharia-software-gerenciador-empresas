@@ -1,5 +1,7 @@
 # Permissions Screen Specification
 
+> **Update — backend integration:** data is now loaded from and saved to the API/database. Statements below about session-only state, fixtures restored on reload, or the absence of API requests are superseded by `../integracao-api/spec.md`.
+
 ## 1. Feature Overview
 
 This specification defines the `Permissões` screen at `/permissoes` in a React and Next.js administrative demonstration. It displays three role summaries and an editable permission matrix. Visible UI labels are in Brazilian Portuguese; this specification is in English. Requirements with prefix `PER-*` are normative.

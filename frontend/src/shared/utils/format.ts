@@ -4,11 +4,12 @@ export function formatDate(isoDate: string): string {
     return day && month && year ? `${day}/${month}/${year}` : isoDate;
 }
 
-export function todayIsoDate(): string {
-    const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    return `${now.getFullYear()}-${month}-${day}`;
+const DATE_TIME_FORMAT = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
+
+/** Converte um instante ISO 8601 em DD/MM/AAAA, HH:MM no fuso do navegador. */
+export function formatDateTime(isoDateTime: string): string {
+    const date = new Date(isoDateTime);
+    return Number.isNaN(date.getTime()) ? isoDateTime : DATE_TIME_FORMAT.format(date);
 }
 
 export function pluralize(count: number, singular: string, plural: string): string {

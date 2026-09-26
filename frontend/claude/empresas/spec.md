@@ -1,5 +1,7 @@
 # Companies Screen Specification
 
+> **Update — backend integration:** data is now loaded from and saved to the API/database. Statements below about session-only state, fixtures restored on reload, or the absence of API requests are superseded by `../integracao-api/spec.md`.
+
 ## 1. Feature Overview
 
 This specification defines the `Empresas` screen at `/empresas` in a React and Next.js administrative interface. It provides an interactive demonstration of company listing, creation, editing, deletion, and cadastral details. All displayed content is in Brazilian Portuguese; this document is in English. Requirements with prefix `COM-*` are normative.

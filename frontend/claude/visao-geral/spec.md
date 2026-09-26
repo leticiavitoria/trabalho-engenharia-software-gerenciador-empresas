@@ -1,5 +1,7 @@
 # Overview Screen Specification
 
+> **Update — backend integration:** data is now loaded from and saved to the API/database. Statements below about session-only state, fixtures restored on reload, or the absence of API requests are superseded by `../integracao-api/spec.md`.
+
 ## 1. Feature Overview
 
 This specification defines the `Visão geral` screen at `/`. The screen summarizes the same fictitious company and user collections used by the `Empresas` and `Usuários` screens. The rendered interface is in Brazilian Portuguese. Requirements with prefix `OV-*` are normative.

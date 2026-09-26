@@ -16,10 +16,28 @@ venv:
 	$(PYTHON) -m venv .venv
 
 install:
-	$(RUN_IN_VENV) -m pip install -r requirements.txt
+	$(RUN_IN_VENV) -m pip install -r requirements-dev.txt
 
 run-backend-local:
 	$(RUN_IN_VENV) run.py
+
+test-backend:
+	$(RUN_IN_VENV) -m pytest
+
+# ---------- Banco de dados (usa as variáveis do .env) ----------
+
+db-migrate:
+	$(RUN_IN_VENV) -m scripts.database.migrate
+
+db-seed:
+	$(RUN_IN_VENV) -m scripts.database.seed
+
+db-reset:
+	$(RUN_IN_VENV) -m scripts.database.reset
+
+# Sobe apenas o PostgreSQL via Docker (útil para rodar o backend localmente).
+db-up:
+	$(COMPOSE) up -d db
 
 # ---------- Backend via Docker ----------
 
@@ -47,7 +65,10 @@ ps:
 # ---------- Frontend (local) ----------
 
 run-frontend:
-	cd frontend && npm run dev
+	cd ../frontend && npm run dev
 
 install-frontend:
-	cd frontend && npm install
+	cd ../frontend && npm install
+
+test-frontend:
+	cd ../frontend && npm test

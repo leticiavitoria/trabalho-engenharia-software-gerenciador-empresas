@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import { ConfirmDialog } from "../../shared/components/ConfirmDialog/ConfirmDialog";
 import { useToast } from "../../shared/components/Toast/useToast";
-import type { UserInput } from "../../shared/demo/types";
-import { useDemoData } from "../../shared/demo/useDemoData";
+import type { UserInput } from "../../shared/data/types";
+import { useAppData } from "../../shared/data/useAppData";
+import { toApiError } from "../../shared/services/apiError";
 import { activeHtmlElement, restoreFocus } from "../../shared/utils/focus";
 import { UserDetailsDialog } from "./UserDetailsDialog";
 import { UserFormDialog } from "./UserFormDialog";
@@ -15,7 +16,7 @@ type DialogState =
     | null;
 
 export function useUserDialogs() {
-    const { companies, users, createUser, updateUser, deleteUser } = useDemoData();
+    const { companies, users, createUser, updateUser, deleteUser } = useAppData();
     const { showToast } = useToast();
     const [dialog, setDialog] = useState<DialogState>(null);
     const triggerRef = useRef<HTMLElement | null>(null);
@@ -37,22 +38,27 @@ export function useUserDialogs() {
     const user = dialog && "userId" in dialog ? users.find((item) => item.id === dialog.userId) : undefined;
     const companyName = user ? (companies.find((company) => company.id === user.companyId)?.name ?? "—") : "";
 
-    const handleCreate = (input: UserInput) => {
-        const created = createUser(input);
-        showToast(`Usuário “${created.name}” cadastrado nesta demonstração. Nenhuma conta real foi criada.`);
+    // Falhas de cadastro e edição sobem para o formulário, que continua aberto.
+    const handleCreate = async (input: UserInput) => {
+        const created = await createUser(input);
+        showToast(`Usuário “${created.name}” cadastrado com sucesso. Nenhuma senha ou convite foi enviado.`);
         close();
     };
 
-    const handleUpdate = (userId: string, input: UserInput) => {
-        updateUser(userId, input);
-        showToast(`Dados de “${input.name}” atualizados nesta demonstração.`);
+    const handleUpdate = async (userId: string, input: UserInput) => {
+        const updated = await updateUser(userId, input);
+        showToast(`Dados de “${updated.name}” atualizados.`);
         close();
     };
 
-    const handleDelete = (userId: string, name: string) => {
-        deleteUser(userId);
-        showToast(`Usuário “${name}” removido desta demonstração.`);
-        close();
+    const handleDelete = async (userId: string, name: string) => {
+        try {
+            await deleteUser(userId);
+            showToast(`Usuário “${name}” excluído.`);
+            close();
+        } catch (error) {
+            showToast(toApiError(error).message, "error");
+        }
     };
 
     let dialogs = null;
@@ -87,8 +93,7 @@ export function useUserDialogs() {
                     onCancel={close}
                     onConfirm={() => handleDelete(user.id, user.name)}
                 >
-                    O usuário será removido apenas desta demonstração; nenhuma conta real é excluída. A alteração é
-                    desfeita ao recarregar a página.
+                    O cadastro do usuário será excluído. Esta ação não pode ser desfeita.
                 </ConfirmDialog>
             );
         }

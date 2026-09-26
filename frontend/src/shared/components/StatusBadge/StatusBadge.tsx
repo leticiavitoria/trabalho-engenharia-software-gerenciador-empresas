@@ -1,5 +1,5 @@
-import { COMPANY_STATUS_LABELS, USER_STATUS_LABELS } from "../../demo/labels";
-import type { RecordStatus } from "../../demo/types";
+import { COMPANY_STATUS_LABELS, USER_STATUS_LABELS } from "../../data/labels";
+import type { RecordStatus } from "../../data/types";
 
 interface StatusBadgeProps {
     status: RecordStatus;

@@ -1,7 +1,7 @@
 import { Icon } from "../../shared/components/Icon/Icon";
 import { Modal } from "../../shared/components/Modal/Modal";
 import { StatusBadge } from "../../shared/components/StatusBadge/StatusBadge";
-import type { Company } from "../../shared/demo/types";
+import type { Company } from "../../shared/data/types";
 import { formatDate, pluralize } from "../../shared/utils/format";
 
 interface CompanyDetailsDialogProps {
@@ -16,7 +16,7 @@ export function CompanyDetailsDialog({ company, userCount, onClose, onEdit, onDe
     return (
         <Modal
             title={company.name}
-            description="Dados cadastrais fictícios desta demonstração."
+            description="Dados cadastrais da empresa."
             onClose={onClose}
             footer={
                 <>

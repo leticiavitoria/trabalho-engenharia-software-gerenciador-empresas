@@ -1,3 +1,4 @@
+import { formatDateTime } from "../utils/format";
 import type { PermissionId, RecordStatus, RoleId } from "./types";
 
 export const RECORD_STATUSES: RecordStatus[] = ["active", "pending", "inactive"];
@@ -17,7 +18,7 @@ export const USER_STATUS_LABELS: Record<RecordStatus, string> = {
 export interface RoleDefinition {
     id: RoleId;
     name: string;
-    /** Propósito do perfil na configuração padrão da demonstração. */
+    /** Propósito do perfil na configuração padrão (seed do banco). */
     defaultDescription: string;
 }
 
@@ -52,3 +53,7 @@ export const PERMISSIONS: { id: PermissionId; label: string }[] = [
 ];
 
 export const NEVER_ACCESSED_LABEL = "Nunca acessou";
+
+export function lastAccessLabel(lastAccess: string | null): string {
+    return lastAccess ? formatDateTime(lastAccess) : NEVER_ACCESSED_LABEL;
+}

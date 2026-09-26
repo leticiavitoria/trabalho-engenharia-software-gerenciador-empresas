@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Icon, type IconName } from "../../shared/components/Icon/Icon";
 import { PageHeader } from "../../shared/components/PageHeader/PageHeader";
 import { StatusBadge } from "../../shared/components/StatusBadge/StatusBadge";
-import { useDemoData } from "../../shared/demo/useDemoData";
+import { useAppData } from "../../shared/data/useAppData";
 import { useCompanyDialogs } from "../companies/useCompanyDialogs";
 import { computeOverviewMetrics, selectRecentCompanies } from "./overviewMetrics";
 
@@ -31,7 +31,7 @@ const SAMPLE_ACTIVITIES = [
 ];
 
 export function OverviewPage() {
-    const { companies, users } = useDemoData();
+    const { companies, users } = useAppData();
     const { openDetails, dialogs } = useCompanyDialogs();
 
     const metrics = useMemo(() => computeOverviewMetrics(companies, users), [companies, users]);
@@ -53,7 +53,7 @@ export function OverviewPage() {
         <>
             <PageHeader
                 title="Visão geral"
-                description="Resumo das empresas e usuários fictícios desta demonstração, calculado a partir dos dados da sessão atual."
+                description="Resumo das empresas e usuários cadastrados, calculado a partir dos dados salvos no servidor."
             />
 
             <ul className="metrics" aria-label="Indicadores">
@@ -78,7 +78,7 @@ export function OverviewPage() {
                             <h2 id="recent-companies-title" className="card__title">
                                 Empresas recentes
                             </h2>
-                            <p className="card__subtitle">Últimos cadastros da sessão.</p>
+                            <p className="card__subtitle">Últimos cadastros realizados.</p>
                         </div>
                         <Link to="/empresas" className="button button--ghost button--small">
                             Ver todas
@@ -88,7 +88,7 @@ export function OverviewPage() {
 
                     {recentCompanies.length === 0 ? (
                         <p className="empty-state">
-                            Nenhuma empresa cadastrada nesta sessão. Acesse “Ver todas” para cadastrar a primeira.
+                            Nenhuma empresa cadastrada até o momento. Acesse “Ver todas” para cadastrar a primeira.
                         </p>
                     ) : (
                         <div className="table-scroll">
@@ -141,7 +141,7 @@ export function OverviewPage() {
                                 Movimentações de exemplo
                             </h2>
                             <p className="card__subtitle">
-                                Itens ilustrativos; não são um histórico real nem registram as ações desta sessão.
+                                Itens ilustrativos; não são um histórico real nem registram as ações realizadas.
                             </p>
                         </div>
                     </header>

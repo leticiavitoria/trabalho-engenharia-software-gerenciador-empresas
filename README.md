@@ -33,3 +33,13 @@ O sistema tem como objetivo permitir o gerenciamento de empresas, oferecendo fun
 - **Claude**
 - **Gemini**
 - **GitHub Copilot**
+
+
+## 5. Como Executar
+
+O sistema tem duas partes: o **backend** (API Flask + PostgreSQL) e o **frontend** (React + Vite), que consome a API.
+
+1. **Backend** — na pasta `backend/`, siga o [README do backend](./backend/README.md). O jeito mais rápido é `make up` (Docker), que sobe o banco e a API em <http://localhost:5000> já com dados de exemplo.
+2. **Frontend** — na pasta `frontend/`, rode `npm install`, confirme `VITE_API_URL=http://localhost:5000` no `.env` e rode `npm run dev`. Detalhes no [README do frontend](./frontend/README.md).
+
+Testes: `npm test` no frontend (não precisa do backend) e `make test-backend` no backend (precisa de um PostgreSQL com o banco de testes).

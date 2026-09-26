@@ -26,7 +26,7 @@ export interface User {
     companyId: string;
     role: RoleId;
     status: RecordStatus;
-    /** Texto ilustrativo do último acesso; `null` quando nunca acessou. */
+    /** Data e hora do último acesso (ISO 8601); `null` quando nunca acessou. */
     lastAccess: string | null;
 }
 

@@ -1,5 +1,7 @@
 # Users Screen Specification
 
+> **Update — backend integration:** data is now loaded from and saved to the API/database. Statements below about session-only state, fixtures restored on reload, or the absence of API requests are superseded by `../integracao-api/spec.md`.
+
 ## 1. Feature Overview
 
 This specification defines the `Usuários` screen at `/usuarios` in a React and Next.js administrative interface. It demonstrates listing, creating, editing, and deleting users and assigning one of three display roles. The UI language is Brazilian Portuguese; this specification is in English. Requirements with prefix `USR-*` are normative.

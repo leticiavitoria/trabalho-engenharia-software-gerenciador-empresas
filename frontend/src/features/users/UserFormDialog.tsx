@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { SelectField, TextField } from "../../shared/components/Form/Field";
 import { Icon } from "../../shared/components/Icon/Icon";
 import { Modal } from "../../shared/components/Modal/Modal";
-import { RECORD_STATUSES, ROLES, USER_STATUS_LABELS } from "../../shared/demo/labels";
-import type { Company, RecordStatus, RoleId, User, UserInput } from "../../shared/demo/types";
+import { RECORD_STATUSES, ROLES, USER_STATUS_LABELS } from "../../shared/data/labels";
+import type { Company, RecordStatus, RoleId, User, UserInput } from "../../shared/data/types";
+import { toApiError } from "../../shared/services/apiError";
 import { focusFirstInvalidField } from "../../shared/utils/focus";
 import { hasErrors, type FieldErrors } from "../../shared/utils/validation";
 import { validateUser } from "./userValidation";
@@ -13,7 +14,8 @@ interface UserFormDialogProps {
     user?: User;
     companies: Company[];
     onCancel: () => void;
-    onSubmit: (input: UserInput) => void;
+    /** Rejeitar a promessa mantém o formulário aberto e exibe o erro. */
+    onSubmit: (input: UserInput) => Promise<void>;
 }
 
 const ROLE_OPTIONS = ROLES.map((role) => ({ value: role.id, label: role.name }));
@@ -28,6 +30,8 @@ export function UserFormDialog({ user, companies, onCancel, onSubmit }: UserForm
         status: user?.status ?? "active",
     }));
     const [errors, setErrors] = useState<FieldErrors<UserInput>>({});
+    const [formError, setFormError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const isEditing = Boolean(user);
     const hasCompanies = companies.length > 0;
@@ -37,15 +41,32 @@ export function UserFormDialog({ user, companies, onCancel, onSubmit }: UserForm
         if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        if (submitting) return;
         const nextErrors = validateUser(values, companies);
         if (hasErrors(nextErrors)) {
             setErrors(nextErrors);
             focusFirstInvalidField(formRef.current);
             return;
         }
-        onSubmit({ ...values, name: values.name.trim(), email: values.email.trim() });
+        setFormError(null);
+        setSubmitting(true);
+        try {
+            await onSubmit({ ...values, name: values.name.trim(), email: values.email.trim() });
+        } catch (error) {
+            // Erros por campo do servidor (ex.: e-mail duplicado) aparecem junto ao campo.
+            const apiError = toApiError(error);
+            const fieldErrors = apiError.fields as FieldErrors<UserInput>;
+            if (hasErrors(fieldErrors)) {
+                setErrors(fieldErrors);
+                focusFirstInvalidField(formRef.current);
+            } else {
+                setFormError(apiError.message);
+            }
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const formId = "user-form";
@@ -53,19 +74,30 @@ export function UserFormDialog({ user, companies, onCancel, onSubmit }: UserForm
     return (
         <Modal
             title={isEditing ? "Editar usuário" : "Novo usuário"}
-            description="Nenhuma conta, senha ou convite real é criado. Os dados valem apenas nesta sessão."
+            description="O cadastro não cria senha nem envia convite. Campos marcados com * são obrigatórios."
             onClose={onCancel}
             footer={
                 <>
                     <button type="button" className="button button--secondary" onClick={onCancel}>
                         Cancelar
                     </button>
-                    <button type="submit" form={formId} className="button button--primary" disabled={!hasCompanies}>
-                        {isEditing ? "Salvar alterações" : "Cadastrar usuário"}
+                    <button
+                        type="submit"
+                        form={formId}
+                        className="button button--primary"
+                        disabled={!hasCompanies || submitting}
+                    >
+                        {submitting ? "Salvando…" : isEditing ? "Salvar alterações" : "Cadastrar usuário"}
                     </button>
                 </>
             }
         >
+            {formError && (
+                <div className="notice notice--error" role="alert">
+                    <Icon name="info" />
+                    <p>{formError}</p>
+                </div>
+            )}
             {!hasCompanies && (
                 <div className="notice notice--warning" role="note">
                     <Icon name="info" />
@@ -117,7 +149,7 @@ export function UserFormDialog({ user, companies, onCancel, onSubmit }: UserForm
                     value={values.role}
                     onValueChange={(value) => setField("role", value as RoleId)}
                     options={ROLE_OPTIONS}
-                    hint="Apenas exibido; não concede acesso real."
+                    hint="Apenas exibido; ainda não controla o acesso."
                 />
                 <SelectField
                     label="Situação"

@@ -1,10 +1,10 @@
-import type { Company, PermissionMatrix, User } from "./types";
+import type { Company, PermissionMatrix, User } from "../shared/data/types";
 
-// Todos os registros abaixo são fictícios. Os CNPJs usam o prefixo 00.000.000,
-// que não corresponde a nenhuma empresa real.
+// Espelho dos dados de exemplo do backend (backend/scripts/database/seed.py),
+// usado pela API em memória dos testes. Todos os registros são fictícios.
 export const INITIAL_COMPANIES: Company[] = [
     {
-        id: "c1",
+        id: "1",
         name: "Aurora Tecnologia",
         cnpj: "00.000.000/0001-01",
         sector: "Tecnologia",
@@ -15,7 +15,7 @@ export const INITIAL_COMPANIES: Company[] = [
         createdAt: "2026-01-12",
     },
     {
-        id: "c2",
+        id: "2",
         name: "Verde Campo",
         cnpj: "00.000.000/0002-02",
         sector: "Agronegócio",
@@ -26,7 +26,7 @@ export const INITIAL_COMPANIES: Company[] = [
         createdAt: "2026-02-03",
     },
     {
-        id: "c3",
+        id: "3",
         name: "Norte Logística",
         cnpj: "00.000.000/0003-03",
         sector: "Logística",
@@ -37,7 +37,7 @@ export const INITIAL_COMPANIES: Company[] = [
         createdAt: "2026-03-18",
     },
     {
-        id: "c4",
+        id: "4",
         name: "Studio Forma",
         cnpj: "00.000.000/0004-04",
         sector: "Design",
@@ -47,7 +47,7 @@ export const INITIAL_COMPANIES: Company[] = [
         createdAt: "2026-05-07",
     },
     {
-        id: "c5",
+        id: "5",
         name: "Costa & Mar",
         cnpj: "00.000.000/0005-05",
         sector: "Turismo",
@@ -58,7 +58,7 @@ export const INITIAL_COMPANIES: Company[] = [
         createdAt: "2026-06-22",
     },
     {
-        id: "c6",
+        id: "6",
         name: "Ponto Saúde",
         cnpj: "00.000.000/0006-06",
         sector: "Saúde",
@@ -72,58 +72,58 @@ export const INITIAL_COMPANIES: Company[] = [
 
 export const INITIAL_USERS: User[] = [
     {
-        id: "u1",
+        id: "1",
         name: "Mariana Alves",
         email: "mariana.alves@aurora.exemplo",
-        companyId: "c1",
+        companyId: "1",
         role: "admin",
         status: "active",
-        lastAccess: "Hoje, 09:42",
+        lastAccess: "2026-09-25T12:42:00+00:00",
     },
     {
-        id: "u2",
+        id: "2",
         name: "Rafael Lima",
         email: "rafael.lima@verdecampo.exemplo",
-        companyId: "c2",
+        companyId: "2",
         role: "editor",
         status: "active",
-        lastAccess: "Ontem, 17:15",
+        lastAccess: "2026-09-24T20:15:00+00:00",
     },
     {
-        id: "u3",
+        id: "3",
         name: "Beatriz Souza",
         email: "beatriz.souza@nortelogistica.exemplo",
-        companyId: "c3",
+        companyId: "3",
         role: "viewer",
         status: "pending",
         lastAccess: null,
     },
     {
-        id: "u4",
+        id: "4",
         name: "Carlos Mendes",
         email: "carlos.mendes@studioforma.exemplo",
-        companyId: "c4",
+        companyId: "4",
         role: "editor",
         status: "active",
-        lastAccess: "22/09/2026, 14:03",
+        lastAccess: "2026-09-22T17:03:00+00:00",
     },
     {
-        id: "u5",
+        id: "5",
         name: "Fernanda Rocha",
         email: "fernanda.rocha@costaemar.exemplo",
-        companyId: "c5",
+        companyId: "5",
         role: "viewer",
         status: "inactive",
-        lastAccess: "10/08/2026, 11:20",
+        lastAccess: "2026-08-10T14:20:00+00:00",
     },
     {
-        id: "u6",
+        id: "6",
         name: "Lucas Pereira",
         email: "lucas.pereira@pontosaude.exemplo",
-        companyId: "c6",
+        companyId: "6",
         role: "admin",
         status: "active",
-        lastAccess: "Hoje, 08:10",
+        lastAccess: "2026-09-25T11:10:00+00:00",
     },
 ];
 

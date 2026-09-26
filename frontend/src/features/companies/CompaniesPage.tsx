@@ -4,9 +4,9 @@ import { ListToolbar } from "../../shared/components/ListToolbar/ListToolbar";
 import { PageHeader } from "../../shared/components/PageHeader/PageHeader";
 import { Pagination } from "../../shared/components/Pagination/Pagination";
 import { StatusBadge } from "../../shared/components/StatusBadge/StatusBadge";
-import { isStatusFilter, matchesStatus, type StatusFilter } from "../../shared/demo/filters";
-import { countUsersByCompany } from "../../shared/demo/selectors";
-import { useDemoData } from "../../shared/demo/useDemoData";
+import { isStatusFilter, matchesStatus, type StatusFilter } from "../../shared/data/filters";
+import { countUsersByCompany } from "../../shared/data/selectors";
+import { useAppData } from "../../shared/data/useAppData";
 import { usePagination } from "../../shared/hooks/usePagination";
 import { matchesSearch, pluralize } from "../../shared/utils/format";
 import { useCompanyDialogs } from "./useCompanyDialogs";
@@ -19,7 +19,7 @@ const STATUS_FILTER_OPTIONS = [
 ];
 
 export function CompaniesPage() {
-    const { companies, users } = useDemoData();
+    const { companies, users } = useAppData();
     const { openDetails, openCreate, dialogs } = useCompanyDialogs();
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -40,7 +40,7 @@ export function CompaniesPage() {
         <>
             <PageHeader
                 title="Empresas"
-                description={`${pluralize(companies.length, "empresa cadastrada", "empresas cadastradas")} nesta demonstração.`}
+                description={`${pluralize(companies.length, "empresa cadastrada", "empresas cadastradas")}.`}
                 actions={
                     <button type="button" className="button button--primary" onClick={openCreate}>
                         <Icon name="plus" size={16} />

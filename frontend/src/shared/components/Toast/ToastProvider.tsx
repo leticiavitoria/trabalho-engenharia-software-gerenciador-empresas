@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Icon } from "../Icon/Icon";
-import { ToastContext } from "./toastContext";
+import { ToastContext, type ToastVariant } from "./toastContext";
 
 const TOAST_DURATION_MS = 5000;
 
 interface Toast {
     id: number;
     message: string;
+    variant: ToastVariant;
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
     const [toast, setToast] = useState<Toast | null>(null);
     const nextId = useRef(1);
 
-    const showToast = useCallback((message: string) => {
-        setToast({ id: nextId.current++, message });
+    const showToast = useCallback((message: string, variant: ToastVariant = "success") => {
+        setToast({ id: nextId.current++, message, variant });
     }, []);
 
     useEffect(() => {
@@ -30,8 +31,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             {children}
             <div className="toast-region" role="status" aria-live="polite">
                 {toast && (
-                    <div className="toast" key={toast.id}>
-                        <Icon name="check" />
+                    <div className={`toast toast--${toast.variant}`} key={toast.id}>
+                        <Icon name={toast.variant === "error" ? "info" : "check"} />
                         <p>{toast.message}</p>
                         <button
                             type="button"

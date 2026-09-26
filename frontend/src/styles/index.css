@@ -408,6 +408,31 @@ select {
     background: var(--color-warning-soft);
 }
 
+.notice--error {
+    color: var(--color-danger);
+    background: var(--color-danger-soft);
+}
+
+/* ===== Carregamento e falha ao buscar dados ===== */
+.load-error {
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+    padding: 28px 24px;
+}
+
+.load-error__title {
+    font-size: 1.25rem;
+}
+
+.load-error__title:focus {
+    outline: none;
+}
+
+.load-error__message {
+    color: var(--color-text-muted);
+}
+
 /* ===== Buttons ===== */
 .button {
     display: inline-flex;
@@ -862,6 +887,10 @@ select {
 .toast > .icon {
     margin-top: 2px;
     color: #7ee2b0;
+}
+
+.toast--error > .icon {
+    color: #ffb4ab;
 }
 
 .toast p {

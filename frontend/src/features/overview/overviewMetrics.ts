@@ -1,4 +1,4 @@
-import type { Company, User } from "../../shared/demo/types";
+import type { Company, User } from "../../shared/data/types";
 
 export const RECENT_COMPANIES_LIMIT = 4;
 
@@ -9,7 +9,7 @@ export interface OverviewMetrics {
     pendingRecords: number;
 }
 
-/** Todos os números vêm das coleções atuais da sessão (OV-002). */
+/** Todos os números vêm das coleções carregadas do servidor (OV-002). */
 export function computeOverviewMetrics(companies: Company[], users: User[]): OverviewMetrics {
     return {
         totalCompanies: companies.length,
