@@ -9,8 +9,8 @@ function cell(permissionLabel: string, roleName: string) {
 }
 
 describe("Permissões", () => {
-    it("PER-T01: all 21 values match the seed matrix", () => {
-        renderApp("/permissoes");
+    it("PER-T01: all 21 values match the seed matrix", async () => {
+        await renderApp("/permissoes");
         for (const permission of PERMISSIONS) {
             expect(screen.getByRole("rowheader", { name: permission.label })).toBeInTheDocument();
             for (const role of ROLES) {
@@ -28,7 +28,7 @@ describe("Permissões", () => {
     });
 
     it("PER-T02 / PER-T05: activating one cell changes only that cell and shows feedback", async () => {
-        const { user } = renderApp("/permissoes");
+        const { user } = await renderApp("/permissoes");
         const target = cell("Excluir empresas", "Editor");
         target.focus();
         await user.keyboard("{Enter}");
@@ -48,7 +48,7 @@ describe("Permissões", () => {
     });
 
     it("PER-T03 / PER-T04: changes persist across navigation and do not touch user roles", async () => {
-        const { user } = renderApp("/permissoes");
+        const { user } = await renderApp("/permissoes");
         await user.click(cell("Gerenciar usuários", "Visualizador"));
 
         await goTo(user, "Usuários");

@@ -2,7 +2,10 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-afterEach(() => cleanup());
+afterEach(() => {
+    cleanup();
+    localStorage.clear();
+});
 
 // O jsdom não implementa showModal/close nem o Escape nativo de <dialog>.
 if (!HTMLDialogElement.prototype.showModal) {

@@ -9,7 +9,7 @@ async function openCompanyForm(user: ReturnType<typeof renderApp>["user"]) {
 
 describe("Empresas", () => {
     it("COM-T01: six companies paginate as five plus one", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         expect(bodyRows()).toHaveLength(5);
         expect(screen.getByText("Mostrando 1–5 de 6")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Página anterior" })).toBeDisabled();
@@ -22,7 +22,7 @@ describe("Empresas", () => {
     });
 
     it("COM-T02: search and status combine and reset to page one", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         await user.click(screen.getByRole("button", { name: "Página 2" }));
 
         await user.type(screen.getByLabelText("Buscar empresas"), "o");
@@ -30,7 +30,8 @@ describe("Empresas", () => {
 
         await user.selectOptions(screen.getByLabelText("Situação"), "active");
         const names = bodyRows().map((row) => within(row).getByRole("rowheader").textContent);
-        expect(names).toEqual(["Aurora Tecnologia", "Verde Campo", "Studio Forma", "Ponto Saúde"]);
+        // A API lista as empresas mais recentes primeiro.
+        expect(names).toEqual(["Ponto Saúde", "Studio Forma", "Verde Campo", "Aurora Tecnologia"]);
 
         await user.clear(screen.getByLabelText("Buscar empresas"));
         await user.type(screen.getByLabelText("Buscar empresas"), "LOGÍSTICA");
@@ -43,7 +44,7 @@ describe("Empresas", () => {
     });
 
     it("COM-T03: invalid data blocks the mutation and keeps the form open", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         const dialog = await openCompanyForm(user);
         await user.type(within(dialog).getByLabelText(/Nome da empresa/), "Empresa Teste");
         await user.type(within(dialog).getByLabelText(/E-mail de contato/), "email-invalido");
@@ -59,7 +60,7 @@ describe("Empresas", () => {
     });
 
     it("COM-T04: create then edit keeps the record and updates every view", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         const dialog = await openCompanyForm(user);
         await user.type(within(dialog).getByLabelText(/Nome da empresa/), "Nova Era");
         await user.type(within(dialog).getByLabelText(/CNPJ fictício/), "00.000.000/0007-07");
@@ -69,7 +70,7 @@ describe("Empresas", () => {
         await user.click(within(dialog).getByRole("button", { name: "Cadastrar empresa" }));
 
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-        expect(screen.getByRole("status")).toHaveTextContent(/cadastrada nesta demonstração/);
+        expect(await screen.findByText(/“Nova Era” cadastrada com sucesso/)).toBeInTheDocument();
         expect(screen.getByText("7 empresas cadastradas nesta demonstração.")).toBeInTheDocument();
 
         await user.click(screen.getByRole("button", { name: "Página 2" }));
@@ -97,11 +98,13 @@ describe("Empresas", () => {
     });
 
     it("COM-T05: delete cancel keeps data; confirm cascades to users and overview", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
+        // Aurora Tecnologia é a empresa mais antiga, então aparece na página 2.
+        await user.click(screen.getByRole("button", { name: "Página 2" }));
         await user.click(screen.getByRole("button", { name: "Ver detalhes de Aurora Tecnologia" }));
         await user.click(screen.getByRole("button", { name: "Excluir empresa" }));
         const confirm = screen.getByRole("alertdialog", { name: "Excluir “Aurora Tecnologia”?" });
-        expect(confirm).toHaveTextContent("1 usuário de demonstração vinculado a esta empresa também será removido.");
+        expect(confirm).toHaveTextContent("1 usuário vinculado a esta empresa também será removido.");
 
         await user.click(within(confirm).getByRole("button", { name: "Cancelar" }));
         expect(screen.getByText("6 empresas cadastradas nesta demonstração.")).toBeInTheDocument();
@@ -125,7 +128,7 @@ describe("Empresas", () => {
     });
 
     it("COM-T06: deleting the last filtered record shows the empty state", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         await user.selectOptions(screen.getByLabelText("Situação"), "inactive");
         expect(bodyRows()).toHaveLength(1);
 
@@ -140,7 +143,7 @@ describe("Empresas", () => {
     });
 
     it("COM-004: details dialog closes with Escape and restores focus", async () => {
-        const { user } = renderApp("/empresas");
+        const { user } = await renderApp("/empresas");
         const trigger = screen.getByRole("button", { name: "Ver detalhes de Verde Campo" });
         await user.click(trigger);
         const details = screen.getByRole("dialog", { name: "Verde Campo" });
